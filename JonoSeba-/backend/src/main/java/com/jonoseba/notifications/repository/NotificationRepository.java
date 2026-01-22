@@ -2,6 +2,7 @@ package com.jonoseba.notifications.repository;
 
 import com.jonoseba.notifications.model.Notification;
 import com.jonoseba.users.model.User;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -19,4 +20,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     List<Notification> findByUserIdAndReadFlagFalse(Long userId);
     
     List<Notification> findByType(String type);
+
+    List<Notification> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
 }
