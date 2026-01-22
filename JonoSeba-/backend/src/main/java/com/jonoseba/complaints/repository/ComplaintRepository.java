@@ -34,4 +34,6 @@ public interface ComplaintRepository extends JpaRepository<Complaint, Long> {
     long countByAssignedToAndStatus(User assignedTo, Complaint.ComplaintStatus status);
     
     List<Complaint> findByAssignedToOrderByCreatedAtDesc(User assignedTo, Pageable pageable);
+
+    List<Complaint> findByStatusAndAssignedToIsNull(Complaint.ComplaintStatus status);
 }
