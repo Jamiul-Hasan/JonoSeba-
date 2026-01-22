@@ -37,6 +37,9 @@ public class Complaint {
     @Column(name = "location_text")
     private String locationText;
 
+    @Column(name = "progress_note", columnDefinition = "TEXT")
+    private String progressNote;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private ComplaintStatus status;
