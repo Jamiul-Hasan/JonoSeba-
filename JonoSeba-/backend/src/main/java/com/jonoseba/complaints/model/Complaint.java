@@ -1,5 +1,6 @@
 package com.jonoseba.complaints.model;
 
+import com.jonoseba.users.model.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,15 +21,12 @@ public class Complaint {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "citizen_id", nullable = false)
-    private Long citizenId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "citizen_id", nullable = false)
+    private User citizen;
 
-    @Column(name = "assigned_worker_id")
-    private Long assignedWorkerId;
-
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ComplaintType complaintType;
+    private String category;
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String description;
@@ -36,12 +34,16 @@ public class Complaint {
     @Column(name = "photo_url")
     private String photoUrl;
 
+    @Column(name = "location_text")
+    private String locationText;
+
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 20)
     private ComplaintStatus status;
 
-    @Column(columnDefinition = "TEXT")
-    private String resolution;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "assigned_to")
+    private User assignedTo;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -49,14 +51,13 @@ public class Complaint {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "resolved_at")
-    private LocalDateTime resolvedAt;
-
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
-        status = ComplaintStatus.REPORTED;
+        if (status == null) {
+            status = ComplaintStatus.NEW;
+        }
     }
 
     @PreUpdate
@@ -64,11 +65,7 @@ public class Complaint {
         updatedAt = LocalDateTime.now();
     }
 
-    public enum ComplaintType {
-        ROAD_DAMAGE, WATER_SUPPLY, GARBAGE, STREET_LIGHT, DRAINAGE, OTHER
-    }
-
     public enum ComplaintStatus {
-        REPORTED, ASSIGNED, IN_PROGRESS, RESOLVED
+        NEW, ASSIGNED, IN_PROGRESS, RESOLVED, REJECTED
     }
 }

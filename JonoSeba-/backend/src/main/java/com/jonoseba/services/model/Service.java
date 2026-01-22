@@ -18,21 +18,23 @@ public class Service {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
 
-    @Column(columnDefinition = "TEXT")
-    private String requirements;
+    @Column(name = "required_docs", columnDefinition = "TEXT")
+    private String requiredDocsJson;
 
-    @Column(columnDefinition = "TEXT")
-    private String processingSteps;
-
-    @Column(nullable = false)
-    private Integer estimatedDays;
-
+    @Builder.Default
     @Column(nullable = false)
     private Boolean active = true;
+
+    @PrePersist
+    protected void onCreate() {
+        if (active == null) {
+            active = true;
+        }
+    }
 }

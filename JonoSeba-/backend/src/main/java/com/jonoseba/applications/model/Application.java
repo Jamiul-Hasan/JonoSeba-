@@ -1,5 +1,7 @@
 package com.jonoseba.applications.model;
 
+import com.jonoseba.users.model.User;
+import com.jonoseba.services.model.Service;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,18 +22,26 @@ public class Application {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "citizen_id", nullable = false)
+    private User citizen;
 
-    @Column(name = "service_id", nullable = false)
-    private Long serviceId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "service_id", nullable = false)
+    private Service service;
+
+    @Column(nullable = false)
+    private String title;
+
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String description;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 20)
     private ApplicationStatus status;
 
     @Column(columnDefinition = "TEXT")
-    private String remark;
+    private String remarks;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -39,14 +49,13 @@ public class Application {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "completed_at")
-    private LocalDateTime completedAt;
-
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
-        status = ApplicationStatus.PENDING;
+        if (status == null) {
+            status = ApplicationStatus.PENDING;
+        }
     }
 
     @PreUpdate
@@ -55,6 +64,6 @@ public class Application {
     }
 
     public enum ApplicationStatus {
-        PENDING, REVIEWING, APPROVED, REJECTED
+        PENDING, REVIEW, APPROVED, REJECTED
     }
 }
