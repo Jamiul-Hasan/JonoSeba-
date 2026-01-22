@@ -46,6 +46,7 @@ public class ApplicationService {
                 .service(service)
                 .title(request.getTitle())
                 .description(request.getDescription())
+                .documentUrls(request.getDocumentUrls())
                 .status(Application.ApplicationStatus.PENDING)
                 .build();
 
@@ -157,6 +158,7 @@ public class ApplicationService {
                 .description(application.getDescription())
                 .status(application.getStatus())
                 .remarks(application.getRemarks())
+                .documentUrls(application.getDocumentUrls())
                 .createdAt(application.getCreatedAt())
                 .updatedAt(application.getUpdatedAt())
                 .build();

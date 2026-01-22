@@ -43,6 +43,9 @@ public class Application {
     @Column(columnDefinition = "TEXT")
     private String remarks;
 
+    @Column(name = "document_urls", columnDefinition = "JSON")
+    private String documentUrls;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

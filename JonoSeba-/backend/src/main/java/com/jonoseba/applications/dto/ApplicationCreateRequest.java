@@ -24,4 +24,6 @@ public class ApplicationCreateRequest {
     @NotBlank(message = "Description is required")
     @Size(min = 10, max = 5000, message = "Description must be between 10 and 5000 characters")
     private String description;
+
+    private String documentUrls;
 }

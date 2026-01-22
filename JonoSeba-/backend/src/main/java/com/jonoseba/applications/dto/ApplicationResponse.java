@@ -22,6 +22,7 @@ public class ApplicationResponse {
     private String description;
     private Application.ApplicationStatus status;
     private String remarks;
+    private String documentUrls;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
