@@ -15,4 +15,10 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     List<Application> findByCitizenId(Long citizenId);
     
     List<Application> findByStatus(Application.ApplicationStatus status);
+    
+    long countByCitizen(User citizen);
+    
+    long countByCitizenAndStatus(User citizen, Application.ApplicationStatus status);
+    
+    long countByStatus(Application.ApplicationStatus status);
 }
