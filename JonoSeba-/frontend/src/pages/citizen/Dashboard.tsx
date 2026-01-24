@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, AlertCircle, FileText, CheckCircle, Clock, XCircle, ArrowRight, TrendingUp, User, Mail, Phone, MapPin, Calendar, Edit2, Save, X } from 'lucide-react'
+import { Plus, AlertCircle, FileText, CheckCircle, Clock, XCircle, ArrowRight, TrendingUp, User, Mail, Phone, MapPin, Calendar, Edit2, Save, X, MessageSquare, UserCheck, Loader2 } from 'lucide-react'
 import { PageHeader } from '@/components/PageHeader'
 import { SkeletonCard, SkeletonTable } from '@/components/SkeletonLoaders'
 import { StatusBadge } from '@/components/StatusBadge'
@@ -18,13 +18,49 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { ApplicationStatus } from '@/types'
-import { usersApi, applicationsApi } from '@/lib/api'
+import { dashboardApi, usersApi, applicationsApi } from '@/lib/api'
+
+// Dashboard Summary Types
+interface DashboardSummary {
+  userInfo: {
+    id: number
+    name: string
+    email: string
+    phone: string
+    location: string | null
+    role: string
+    createdAt: string
+  }
+  totalApplications: number
+  applicationsByStatus: {
+    pending: number
+    inReview: number
+    inProgress: number
+    approved: number
+    rejected: number
+  }
+  totalComplaints: number
+  complaintsByStatus: {
+    newCount: number
+    assigned: number
+    inProgress: number
+    resolved: number
+    rejected: number
+  }
+}
 
 interface DashboardStats {
   total: number
   pending: number
   approved: number
   rejected: number
+}
+
+interface ComplaintStats {
+  total: number
+  assigned: number
+  inProgress: number
+  resolved: number
 }
 
 interface StatCardProps {
@@ -83,7 +119,12 @@ export function CitizenDashboard() {
   const [page, setPage] = useState(1)
   const pageSize = 5
 
-  // Profile state
+  // Dashboard summary state
+  const [summary, setSummary] = useState<DashboardSummary | null>(null)
+  const [summaryLoading, setSummaryLoading] = useState(true)
+  const [summaryError, setSummaryError] = useState<string | null>(null)
+
+  // Profile state for editing
   interface UserProfile {
     id: number
     name: string
@@ -100,9 +141,44 @@ export function CitizenDashboard() {
   const [editForm, setEditForm] = useState({ name: '', phone: '', address: '' })
   const [saving, setSaving] = useState(false)
 
-  // Fetch user profile
+  // Fetch dashboard summary from /api/dashboard/summary
   useEffect(() => {
-    async function fetchProfile() {
+    async function fetchDashboardSummary() {
+      try {
+        const response = await dashboardApi.getSummary()
+        const data = response.data?.data
+        if (data) {
+          setSummary(data)
+          // Also set profile from summary
+          if (data.userInfo) {
+            setProfile({
+              id: data.userInfo.id,
+              name: data.userInfo.name,
+              email: data.userInfo.email,
+              phone: data.userInfo.phone,
+              address: data.userInfo.location,
+              role: data.userInfo.role,
+              createdAt: data.userInfo.createdAt,
+            })
+            setEditForm({
+              name: data.userInfo.name || '',
+              phone: data.userInfo.phone || '',
+              address: data.userInfo.location || '',
+            })
+            setProfileLoading(false)
+          }
+        }
+      } catch (error: any) {
+        console.error('Failed to fetch dashboard summary:', error)
+        setSummaryError(error.response?.data?.message || 'ড্যাশবোর্ড লোড করতে ব্যর্থ হয়েছে')
+        // Fallback to individual API calls
+        fetchProfileFallback()
+      } finally {
+        setSummaryLoading(false)
+      }
+    }
+
+    async function fetchProfileFallback() {
       try {
         const response = await usersApi.getProfile()
         const userData = response.data?.data
@@ -120,7 +196,8 @@ export function CitizenDashboard() {
         setProfileLoading(false)
       }
     }
-    fetchProfile()
+
+    fetchDashboardSummary()
   }, [])
 
   // Handle profile update
@@ -140,7 +217,7 @@ export function CitizenDashboard() {
     }
   }
 
-  // Applications state
+  // Applications state for table display
   interface ApplicationItem {
     id: number
     type: string
@@ -150,16 +227,14 @@ export function CitizenDashboard() {
   
   const [applications, setApplications] = useState<ApplicationItem[]>([])
   const [applicationsLoading, setApplicationsLoading] = useState(true)
-  const [totalApplications, setTotalApplications] = useState(0)
 
-  // Fetch citizen's applications
+  // Fetch citizen's applications for the table
   useEffect(() => {
     async function fetchApplications() {
       try {
         const response = await applicationsApi.listMine()
         const appData = response.data?.data || []
         setApplications(appData)
-        setTotalApplications(appData.length)
       } catch (error) {
         console.error('Failed to fetch applications:', error)
       } finally {
@@ -169,19 +244,33 @@ export function CitizenDashboard() {
     fetchApplications()
   }, [])
 
-  // Calculate stats
-  const stats: DashboardStats = {
-    total: totalApplications,
-    pending: applications.filter(
-      app => app.status === ApplicationStatus.PENDING
-    ).length,
-    approved: applications.filter(
-      app => app.status === ApplicationStatus.APPROVED
-    ).length,
-    rejected: applications.filter(
-      app => app.status === ApplicationStatus.REJECTED
-    ).length,
+  // Calculate stats from summary or fallback to applications
+  const stats: DashboardStats = summary ? {
+    total: summary.totalApplications,
+    pending: summary.applicationsByStatus.pending + summary.applicationsByStatus.inReview,
+    approved: summary.applicationsByStatus.approved,
+    rejected: summary.applicationsByStatus.rejected,
+  } : {
+    total: applications.length,
+    pending: applications.filter(app => app.status === ApplicationStatus.PENDING).length,
+    approved: applications.filter(app => app.status === ApplicationStatus.APPROVED).length,
+    rejected: applications.filter(app => app.status === ApplicationStatus.REJECTED).length,
   }
+
+  // Complaint stats from summary
+  const complaintStats: ComplaintStats = summary ? {
+    total: summary.totalComplaints,
+    assigned: summary.complaintsByStatus.assigned,
+    inProgress: summary.complaintsByStatus.inProgress,
+    resolved: summary.complaintsByStatus.resolved,
+  } : {
+    total: 0,
+    assigned: 0,
+    inProgress: 0,
+    resolved: 0,
+  }
+
+  const isLoading = summaryLoading || applicationsLoading
 
   return (
     <div className="space-y-8">
@@ -375,36 +464,89 @@ export function CitizenDashboard() {
         </Button>
       </div>
 
-      {/* Statistics Cards */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          title="মোট আবেদন"
-          value={stats.total}
-          icon={<FileText className="w-6 h-6" />}
-          color="blue"
-          loading={applicationsLoading}
-        />
+      {/* Statistics Cards - Applications */}
+      <div className="space-y-4">
+        <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+          <FileText className="w-5 h-5 text-blue-600" />
+          আবেদন সারসংক্ষেপ
+        </h2>
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard
+            title="মোট আবেদন"
+            value={stats.total}
+            icon={<FileText className="w-6 h-6" />}
+            color="blue"
+            loading={isLoading}
+          />
         <StatCard
           title="অপেক্ষমাণ"
           value={stats.pending}
           icon={<Clock className="w-6 h-6" />}
           color="yellow"
-          loading={applicationsLoading}
+          loading={isLoading}
         />
         <StatCard
           title="অনুমোদিত"
           value={stats.approved}
           icon={<CheckCircle className="w-6 h-6" />}
           color="green"
-          loading={applicationsLoading}
+          loading={isLoading}
         />
         <StatCard
           title="প্রত্যাখ্যাত"
           value={stats.rejected}
           icon={<XCircle className="w-6 h-6" />}
           color="red"
-          loading={applicationsLoading}
+          loading={isLoading}
         />
+        </div>
+      </div>
+
+      {/* Complaints Summary Section */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+            <MessageSquare className="w-5 h-5 text-orange-600" />
+            অভিযোগ সারসংক্ষেপ
+          </h2>
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/citizen/complaints')}
+            className="gap-2 text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+          >
+            সব দেখুন <ArrowRight className="w-4 h-4" />
+          </Button>
+        </div>
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard
+            title="মোট অভিযোগ"
+            value={complaintStats.total}
+            icon={<MessageSquare className="w-6 h-6" />}
+            color="blue"
+            loading={isLoading}
+          />
+          <StatCard
+            title="নিয়োগকৃত"
+            value={complaintStats.assigned}
+            icon={<UserCheck className="w-6 h-6" />}
+            color="yellow"
+            loading={isLoading}
+          />
+          <StatCard
+            title="চলমান"
+            value={complaintStats.inProgress}
+            icon={<Loader2 className="w-6 h-6" />}
+            color="blue"
+            loading={isLoading}
+          />
+          <StatCard
+            title="সমাধান হয়েছে"
+            value={complaintStats.resolved}
+            icon={<CheckCircle className="w-6 h-6" />}
+            color="green"
+            loading={isLoading}
+          />
+        </div>
       </div>
 
       {/* Recent Applications Section */}
@@ -500,9 +642,9 @@ export function CitizenDashboard() {
         )}
 
         {/* Pagination Info */}
-        {totalApplications > pageSize && (
+        {stats.total > pageSize && (
           <div className="text-center text-sm text-slate-600 py-2">
-            {totalApplications} টি আবেদনের মধ্যে {Math.min(pageSize, applications.length)} টি দেখাচ্ছে
+            {stats.total} টি আবেদনের মধ্যে {Math.min(pageSize, applications.length)} টি দেখাচ্ছে
           </div>
         )}
       </div>

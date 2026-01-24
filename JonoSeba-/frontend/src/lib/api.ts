@@ -131,4 +131,21 @@ export const analyticsApi = {
     api.get('/analytics/complaints', { params }),
 }
 
+// ==================== Dashboard API ====================
+export const dashboardApi = {
+  // GET /api/dashboard/me - Get current user profile
+  getProfile: () =>
+    api.get('/dashboard/me'),
+  // GET /api/dashboard/summary - Get applications and complaints summary
+  getSummary: () =>
+    api.get('/dashboard/summary'),
+  // Role-specific dashboards
+  getCitizenDashboard: () =>
+    api.get('/dashboard/citizen'),
+  getOfficerDashboard: () =>
+    api.get('/dashboard/officer'),
+  getAdminDashboard: () =>
+    api.get('/dashboard/admin'),
+}
+
 export default api

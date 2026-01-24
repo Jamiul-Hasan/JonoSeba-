@@ -136,4 +136,84 @@ public class DashboardService {
                 .recentAssignedComplaints(recentComplaints)
                 .build();
     }
+
+    /**
+     * Get dashboard summary for any authenticated user
+     * Returns user profile, applications summary, and complaints summary
+     */
+    @Transactional(readOnly = true)
+    public DashboardSummaryResponse getDashboardSummary(User user) {
+        // User Profile
+        UserProfileResponse userInfo = UserProfileResponse.fromUser(user);
+
+        // Applications Summary (for citizens, show their own; for admin/officer, show all)
+        long totalApplications;
+        DashboardSummaryResponse.ApplicationStatusCount appStatus;
+        
+        if (user.getRole() == User.UserRole.CITIZEN) {
+            // Citizen sees only their applications
+            totalApplications = applicationRepository.countByCitizen(user);
+            appStatus = DashboardSummaryResponse.ApplicationStatusCount.builder()
+                    .pending(applicationRepository.countByCitizenAndStatus(user, Application.ApplicationStatus.PENDING))
+                    .inReview(applicationRepository.countByCitizenAndStatus(user, Application.ApplicationStatus.REVIEW))
+                    .inProgress(applicationRepository.countByCitizenAndStatus(user, Application.ApplicationStatus.IN_PROGRESS))
+                    .approved(applicationRepository.countByCitizenAndStatus(user, Application.ApplicationStatus.APPROVED))
+                    .rejected(applicationRepository.countByCitizenAndStatus(user, Application.ApplicationStatus.REJECTED))
+                    .build();
+        } else {
+            // Admin/Officer sees all applications
+            totalApplications = applicationRepository.count();
+            appStatus = DashboardSummaryResponse.ApplicationStatusCount.builder()
+                    .pending(applicationRepository.countByStatus(Application.ApplicationStatus.PENDING))
+                    .inReview(applicationRepository.countByStatus(Application.ApplicationStatus.REVIEW))
+                    .inProgress(applicationRepository.countByStatus(Application.ApplicationStatus.IN_PROGRESS))
+                    .approved(applicationRepository.countByStatus(Application.ApplicationStatus.APPROVED))
+                    .rejected(applicationRepository.countByStatus(Application.ApplicationStatus.REJECTED))
+                    .build();
+        }
+
+        // Complaints Summary
+        long totalComplaints;
+        DashboardSummaryResponse.ComplaintStatusCount complaintStatus;
+        
+        if (user.getRole() == User.UserRole.CITIZEN) {
+            // Citizen sees only their complaints
+            totalComplaints = complaintRepository.countByCitizen(user);
+            complaintStatus = DashboardSummaryResponse.ComplaintStatusCount.builder()
+                    .newCount(complaintRepository.countByCitizenAndStatus(user, Complaint.ComplaintStatus.NEW))
+                    .assigned(complaintRepository.countByCitizenAndStatus(user, Complaint.ComplaintStatus.ASSIGNED))
+                    .inProgress(complaintRepository.countByCitizenAndStatus(user, Complaint.ComplaintStatus.IN_PROGRESS))
+                    .resolved(complaintRepository.countByCitizenAndStatus(user, Complaint.ComplaintStatus.RESOLVED))
+                    .rejected(complaintRepository.countByCitizenAndStatus(user, Complaint.ComplaintStatus.REJECTED))
+                    .build();
+        } else if (user.getRole() == User.UserRole.OFFICER) {
+            // Officer sees complaints assigned to them
+            totalComplaints = complaintRepository.countByAssignedTo(user);
+            complaintStatus = DashboardSummaryResponse.ComplaintStatusCount.builder()
+                    .newCount(0L)
+                    .assigned(complaintRepository.countByAssignedToAndStatus(user, Complaint.ComplaintStatus.ASSIGNED))
+                    .inProgress(complaintRepository.countByAssignedToAndStatus(user, Complaint.ComplaintStatus.IN_PROGRESS))
+                    .resolved(complaintRepository.countByAssignedToAndStatus(user, Complaint.ComplaintStatus.RESOLVED))
+                    .rejected(complaintRepository.countByAssignedToAndStatus(user, Complaint.ComplaintStatus.REJECTED))
+                    .build();
+        } else {
+            // Admin sees all complaints
+            totalComplaints = complaintRepository.count();
+            complaintStatus = DashboardSummaryResponse.ComplaintStatusCount.builder()
+                    .newCount(complaintRepository.countByStatus(Complaint.ComplaintStatus.NEW))
+                    .assigned(complaintRepository.countByStatus(Complaint.ComplaintStatus.ASSIGNED))
+                    .inProgress(complaintRepository.countByStatus(Complaint.ComplaintStatus.IN_PROGRESS))
+                    .resolved(complaintRepository.countByStatus(Complaint.ComplaintStatus.RESOLVED))
+                    .rejected(complaintRepository.countByStatus(Complaint.ComplaintStatus.REJECTED))
+                    .build();
+        }
+
+        return DashboardSummaryResponse.builder()
+                .userInfo(userInfo)
+                .totalApplications(totalApplications)
+                .applicationsByStatus(appStatus)
+                .totalComplaints(totalComplaints)
+                .complaintsByStatus(complaintStatus)
+                .build();
+    }
 }

@@ -3,7 +3,9 @@ package com.jonoseba.dashboard.controller;
 import com.jonoseba.common.dto.ApiResponse;
 import com.jonoseba.dashboard.dto.AdminDashboardResponse;
 import com.jonoseba.dashboard.dto.CitizenDashboardResponse;
+import com.jonoseba.dashboard.dto.DashboardSummaryResponse;
 import com.jonoseba.dashboard.dto.OfficerDashboardResponse;
+import com.jonoseba.dashboard.dto.UserProfileResponse;
 import com.jonoseba.dashboard.service.DashboardService;
 import com.jonoseba.users.model.User;
 import com.jonoseba.users.repository.UserRepository;
@@ -23,6 +25,28 @@ public class DashboardController {
 
     private final DashboardService dashboardService;
     private final UserRepository userRepository;
+
+    /**
+     * GET /api/dashboard/me - Returns logged-in user profile info
+     */
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<UserProfileResponse>> getCurrentUserProfile(
+            Authentication authentication) {
+        User user = getUserFromAuthentication(authentication);
+        UserProfileResponse response = UserProfileResponse.fromUser(user);
+        return ResponseEntity.ok(ApiResponse.success("User profile retrieved", response));
+    }
+
+    /**
+     * GET /api/dashboard/summary - Returns applications and complaints summary
+     */
+    @GetMapping("/summary")
+    public ResponseEntity<ApiResponse<DashboardSummaryResponse>> getDashboardSummary(
+            Authentication authentication) {
+        User user = getUserFromAuthentication(authentication);
+        DashboardSummaryResponse response = dashboardService.getDashboardSummary(user);
+        return ResponseEntity.ok(ApiResponse.success("Dashboard summary retrieved", response));
+    }
 
     @GetMapping("/citizen")
     @PreAuthorize("hasRole('CITIZEN')")
