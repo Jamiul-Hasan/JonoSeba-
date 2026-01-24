@@ -55,11 +55,23 @@ export function AppRoutes() {
       {/* Auth Routes */}
       <Route
         path="/login"
-        element={isAuthenticated ? <Navigate to="/" /> : <Login />}
+        element={
+          isAuthenticated ? (
+            <Navigate to={`/${(user?.role === 'OFFICER' ? 'officer' : user?.role?.toLowerCase()) || 'citizen'}/dashboard`} />
+          ) : (
+            <Login />
+          )
+        }
       />
       <Route
         path="/register"
-        element={isAuthenticated ? <Navigate to="/" /> : <Register />}
+        element={
+          isAuthenticated ? (
+            <Navigate to={`/${(user?.role === 'OFFICER' ? 'officer' : user?.role?.toLowerCase()) || 'citizen'}/dashboard`} />
+          ) : (
+            <Register />
+          )
+        }
       />
       <Route
         path="/forgot-password"
@@ -71,7 +83,7 @@ export function AppRoutes() {
         path="/citizen/*"
         element={
           <ProtectedRoute>
-            <RoleGuard requiredRoles={['CITIZEN']}>
+            <RoleGuard requiredRoles={['CITIZEN', 'ADMIN']}>
               <AppLayout>
                 <Routes>
                   <Route path="dashboard" element={<CitizenDashboard />} />
@@ -96,7 +108,7 @@ export function AppRoutes() {
         path="/officer/*"
         element={
           <ProtectedRoute>
-            <RoleGuard requiredRoles={['FIELD_WORKER', 'OFFICER']}>
+            <RoleGuard requiredRoles={['OFFICER', 'FIELD_WORKER', 'ADMIN']}>
               <AppLayout>
                 <Routes>
                   <Route path="dashboard" element={<OfficerDashboard />} />

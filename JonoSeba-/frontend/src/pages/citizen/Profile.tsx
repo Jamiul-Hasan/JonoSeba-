@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
+import { authApi } from '@/lib/api'
 import { PageHeader } from '@/components/PageHeader'
 import { Button } from '@/components/ui/button'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
@@ -53,14 +54,21 @@ export function Profile() {
     )
   }
 
-  const handleLogout = () => {
-    logout()
-    toast({
-      title: 'লগ আউট সফল',
-      description: 'আপনি সফলভাবে লগ আউট করেছেন',
-      variant: 'success',
-    })
-    navigate('/login')
+  const handleLogout = async () => {
+    try {
+      // Call backend logout API (optional)
+      await authApi.logout()
+    } catch (error) {
+      console.warn('Backend logout failed:', error)
+    } finally {
+      logout()
+      toast({
+        title: 'লগ আউট সফল',
+        description: 'আপনি সফলভাবে লগ আউট করেছেন',
+        variant: 'success',
+      })
+      navigate('/')
+    }
   }
 
   const getInitials = (name: string) => {

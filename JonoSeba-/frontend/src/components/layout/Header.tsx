@@ -1,7 +1,8 @@
 import { Menu, ChevronRight, User, Settings, LogOut, Moon, Sun } from 'lucide-react'
-import { useLocation, Link } from 'react-router-dom'
+import { useLocation, Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { useAuthStore } from '@/store/authStore'
+import { authApi } from '@/lib/api'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,7 +21,8 @@ interface HeaderProps {
 
 export function Header({ onMenuClick }: HeaderProps) {
   const location = useLocation()
-  const { user } = useAuthStore()
+  const navigate = useNavigate()
+  const { user, logout } = useAuthStore()
   const [darkMode, setDarkMode] = useState(false)
 
   // Get first letter of user's name for avatar
@@ -69,6 +71,22 @@ export function Header({ onMenuClick }: HeaderProps) {
   const toggleDarkMode = () => {
     setDarkMode(!darkMode)
     document.documentElement.classList.toggle('dark')
+  }
+
+  // Handle logout - clear auth state and redirect to landing page
+  const handleLogout = async () => {
+    try {
+      // Call backend logout API (optional - for token blacklist if implemented)
+      await authApi.logout()
+    } catch (error) {
+      // Continue with logout even if API fails (JWT is stateless)
+      console.warn('Backend logout failed:', error)
+    } finally {
+      // Clear local auth state
+      logout()
+      // Redirect to landing page
+      navigate('/')
+    }
   }
 
   return (
@@ -173,11 +191,12 @@ export function Header({ onMenuClick }: HeaderProps) {
             </Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem asChild>
-            <Link to="/login" className="cursor-pointer text-destructive">
-              <LogOut className="mr-2 h-4 w-4" />
-              লগ আউট
-            </Link>
+          <DropdownMenuItem 
+            onClick={handleLogout}
+            className="cursor-pointer text-destructive focus:text-destructive"
+          >
+            <LogOut className="mr-2 h-4 w-4" />
+            লগ আউট
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

@@ -71,6 +71,8 @@ export const servicesApi = {
 export const applicationsApi = {
   list: (params?: any) =>
     api.get('/applications', { params }),
+  listMine: (params?: any) =>
+    api.get('/applications/me', { params }),
   detail: (id: string) =>
     api.get(`/applications/${id}`),
   create: (data: any) =>
@@ -97,6 +99,10 @@ export const usersApi = {
     api.get('/users', { params }),
   detail: (id: string) =>
     api.get(`/users/${id}`),
+  getProfile: () =>
+    api.get('/users/me'),
+  updateProfile: (data: { name?: string; phone?: string; address?: string }) =>
+    api.put('/users/me', data),
   updateRole: (id: string, data: any) =>
     api.put(`/users/${id}/role`, data),
   updateStatus: (id: string, data: any) =>

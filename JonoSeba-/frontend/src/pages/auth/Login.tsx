@@ -67,11 +67,19 @@ export function Login() {
         password: data.password,
       })
 
+      const authData = response.data.data
+      const user = {
+        id: authData.userId,
+        name: authData.name,
+        email: data.email,
+        role: authData.role,
+      }
+
       // Verify role matches
-      if (response.user.role !== data.role) {
+      if (user.role !== data.role) {
         toast({
           title: 'ভূমিকা মেলেনি',
-          description: `এই ইমেইল একটি ${roleConfig[response.user.role as UserRole].label} অ্যাকাউন্টের জন্য নিবন্ধিত।`,
+          description: `এই ইমেইল একটি ${roleConfig[user.role as UserRole].label} অ্যাকাউন্টের জন্য নিবন্ধিত।`,
           variant: 'destructive',
         })
         setIsLoading(false)
@@ -79,24 +87,25 @@ export function Login() {
       }
 
       // Store auth data
-      login(response.token, response.user)
+      login(authData.token, user)
 
       // Show success message
       toast({
         title: 'সফলভাবে লগইন হয়েছে',
-        description: `স্বাগতম, ${response.user.name}`,
+        description: `স্বাগতম, ${user.name}`,
         variant: 'default',
       })
 
       // Redirect based on role
       const from = location.state?.from?.pathname
-      const roleRedirects: Record<UserRole, string> = {
+      const roleRedirects: Record<string, string> = {
         CITIZEN: '/citizen/dashboard',
+        OFFICER: '/officer/dashboard',
         FIELD_WORKER: '/officer/dashboard',
         ADMIN: '/admin/dashboard',
       }
 
-      const redirectPath = from || roleRedirects[response.user.role as UserRole]
+      const redirectPath = from || roleRedirects[user.role] || '/citizen/dashboard'
       navigate(redirectPath, { replace: true })
     } catch (error: any) {
       toast({
