@@ -79,7 +79,7 @@ export function Register() {
       // Show success message
       toast({
         title: 'রেজিস্ট্রেশন সফল হয়েছে',
-        description: `${response.user.name}, আপনি এখন লগইন করতে পারেন`,
+        description: `${response.data.data.name}, আপনি এখন লগইন করতে পারেন`,
         variant: 'default',
       })
 

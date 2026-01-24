@@ -1,7 +1,11 @@
 import axios, { AxiosInstance, AxiosError } from 'axios'
 import { useAuthStore } from '@/store/authStore'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api'
+// Prefer explicitly provided base URL; fall back to VITE_API_URL (older env) then origin-relative /api
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  import.meta.env.VITE_API_URL ||
+  `${window.location.origin}/api`
 const MOCK_API = import.meta.env.VITE_MOCK_API === 'true'
 
 // Create axios instance
@@ -39,8 +43,8 @@ api.interceptors.response.use(
 
 // ==================== Auth API ====================
 export const authApi = {
-  login: (email: string, password: string) =>
-    api.post('/auth/login', { email, password }),
+  login: (data: { email: string; password: string }) =>
+    api.post('/auth/login', data),
   register: (data: any) =>
     api.post('/auth/register', data),
   logout: () =>
