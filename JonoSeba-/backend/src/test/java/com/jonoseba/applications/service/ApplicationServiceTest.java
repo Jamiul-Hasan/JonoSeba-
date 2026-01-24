@@ -6,6 +6,8 @@ import com.jonoseba.applications.model.Application;
 import com.jonoseba.applications.repository.ApplicationRepository;
 import com.jonoseba.common.exception.ResourceNotFoundException;
 import com.jonoseba.notifications.service.NotificationService;
+import com.jonoseba.services.model.Service;
+import com.jonoseba.services.repository.ServiceRepository;
 import com.jonoseba.users.model.User;
 import com.jonoseba.users.repository.UserRepository;
 import org.junit.jupiter.api.*;
@@ -46,12 +48,16 @@ class ApplicationServiceTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private ServiceRepository serviceRepository;
+
     @MockBean
     private NotificationService notificationService;
 
     private User adminUser;
     private User officerUser;
     private User citizenUser;
+    private Service testService;
     private Application testApplication;
 
     @BeforeEach
@@ -84,12 +90,20 @@ class ApplicationServiceTest {
                 .enabled(true)
                 .build());
 
+        // Create test service
+        testService = serviceRepository.save(Service.builder()
+                .name("Birth Certificate")
+                .description("Birth certificate service")
+                .active(true)
+                .build());
+
         // Create test application
         testApplication = applicationRepository.save(Application.builder()
                 .citizen(citizenUser)
-                .service("Birth Certificate")
+                .service(testService)
                 .status(Application.ApplicationStatus.PENDING)
-                .remarks("Initial submission")
+                .title("Birth Certificate Application")
+                .description("Requesting birth certificate")
                 .build());
     }
 

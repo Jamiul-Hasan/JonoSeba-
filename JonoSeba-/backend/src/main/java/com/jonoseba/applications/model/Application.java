@@ -67,6 +67,6 @@ public class Application {
     }
 
     public enum ApplicationStatus {
-        PENDING, REVIEW, APPROVED, REJECTED
+        PENDING, REVIEW, IN_PROGRESS, APPROVED, REJECTED
     }
 }

@@ -1,82 +1,110 @@
-# JonoSeba-
-JonoSeba (জনসেবা)
-A Spring Boot & React Based Digital Governance Platform
+# JonoSeba - Digital Governance Platform
 
-JonoSeba is a web-based digital governance platform designed to simplify access to government services and community problem reporting for rural citizens of Bangladesh. The system minimizes paperwork, travel, and delays while ensuring transparency, accountability, and real-time communication between citizens, administrators, and field workers.
+A comprehensive digital governance platform designed to streamline public services in rural Bangladesh. This platform connects citizens, officers, and administrators to facilitate efficient service delivery, application tracking, and complaint management.
 
-🚀 Project Vision
+## 🚀 Quick Start
 
-To digitize rural government services and enable citizens to apply for services, report local problems, and track progress online through a secure, scalable, and real-time platform.
+### Option 1: Docker (Production Mode)
+```bash
+./start.sh
+```
+Access the application at:
+- **Frontend**: http://localhost
+- **Backend API**: http://localhost:8080/api
+- **Swagger UI**: http://localhost:8080/swagger-ui.html
 
-🎯 Objectives
+### Option 2: Development Mode
+```bash
+./start-dev.sh
+```
+Access the application at:
+- **Frontend**: http://localhost:5173
+- **Backend API**: http://localhost:8080/api
 
-Digitize rural government service applications
+### Option 3: Windows Development
+```cmd
+start-dev.bat
+```
 
-Enable online tracking of application and complaint status
+📖 **For detailed setup instructions, see [SETUP_GUIDE.md](SETUP_GUIDE.md)**
 
-Automatically assign tasks to field workers
+---
 
-Provide role-based dashboards (Citizen, Admin, Field Worker)
+## ✨ Features
 
-Ensure high performance using multithreading and asynchronous processing
+### For Citizens 👥
+- 📝 Apply for government services online
+- 🔍 Track application status in real-time
+- 📢 Submit complaints and suggestions
+- 🔔 Receive instant notifications via WebSocket
+- 📄 Upload and manage required documents
+- 📱 Responsive mobile-friendly interface
 
-Improve transparency and reduce corruption and delays
+### For Officers 👨‍💼
+- 📋 Review and process applications
+- ✅ Update application status with workflow
+- 📊 View assigned applications dashboard
+- 💬 Respond to complaints efficiently
+- 📈 Generate and export reports
+- ⏰ Automated scheduled tasks
 
-🧱 System Architecture
+### For Administrators 👑
+- 👥 Manage users, roles, and permissions
+- 🛠️ Configure services and requirements
+- 📊 View analytics and comprehensive reports
+- ⚙️ System configuration and monitoring
+- 🔐 Security and access control
+- 📉 Performance metrics via Actuator
 
-Frontend: React.js (Client-side UI)
+---
 
-Backend: Spring Boot (REST APIs & WebSockets)
+## 🛠️ Technology Stack
 
-Database: MySQL / PostgreSQL
+### Backend
+- **Framework**: Spring Boot 3.2.0
+- **Language**: Java 21 (Amazon Corretto)
+- **Database**: MySQL 8.0 (H2 for testing)
+- **Security**: JWT Authentication with Spring Security
+- **Real-time**: WebSocket with STOMP messaging
+- **API Documentation**: SpringDoc OpenAPI 3 (Swagger)
+- **Monitoring**: Spring Boot Actuator
+- **Build Tool**: Maven 3.9.12
+- **Testing**: JUnit 5, MockMvc, 24 comprehensive tests
 
-Communication: HTTP/HTTPS + WebSocket (TCP)
+### Frontend
+- **Framework**: React 18.2
+- **Language**: TypeScript 5.0
+- **UI Library**: Tailwind CSS 3.4 + shadcn/ui
+- **State Management**: Zustand
+- **Data Fetching**: React Query (TanStack Query)
+- **Build Tool**: Vite 5.0
+- **Routing**: React Router v6
+- **Form Handling**: React Hook Form with Zod validation
+- **Icons**: Lucide React
+- **Notifications**: Toast notifications with real-time updates
 
-Authentication: JWT-based Security
+### DevOps & Infrastructure
+- **Containerization**: Docker with multi-stage builds
+- **Orchestration**: Docker Compose
+- **Web Server**: Nginx (production)
+- **Health Checks**: Built-in Docker health monitoring
+- **CI/CD Ready**: GitHub Actions compatible
+- **Monitoring**: Spring Boot Actuator endpoints
+- **API Testing**: Swagger UI integrated
 
-🛠️ Technology Stack
-Frontend (React.js)
+---
 
-React.js (Functional Components)
+## 📋 Prerequisites
 
-React Router (Role-based navigation)
+### For Docker Mode (Recommended)
+- Docker 20.10+
+- Docker Compose 2.0+
 
-Axios (REST API communication)
-
-SockJS + StompJS (WebSocket real-time updates)
-
-Tailwind CSS / Material UI (Responsive UI)
-
-JWT Authentication
-
-Backend (Spring Boot)
-
-Spring Boot
-
-Spring Web (REST APIs)
-
-Spring Security + JWT
-
-Spring Data JPA + Hibernate
-
-MySQL / PostgreSQL
-
-Spring WebSocket + STOMP
-
-Spring Scheduler (@Scheduled)
-
-Asynchronous Processing (@Async, ExecutorService)
-
-Maven (Dependency Management)
-
-📌 Key Features
-1️⃣ User Authentication & Authorization
-
-Role-based access: Citizen, Admin, Field Worker
-
-Secure JWT-based login system
-
-REST-based authentication endpoints
+### For Development Mode
+- **Java**: 17 or higher (21 recommended)
+- **Maven**: 3.8+ (3.9.12 recommended)
+- **Node.js**: 16+ (18 recommended)
+- **MySQL**: 8.0+ (or use Docker for MySQL)
 
 2️⃣ Online Government Service Applications
 

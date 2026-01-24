@@ -6,13 +6,12 @@ import com.jonoseba.services.dto.ServiceResponse;
 import com.jonoseba.services.model.Service;
 import com.jonoseba.services.repository.ServiceRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Service
+@org.springframework.stereotype.Service
 @RequiredArgsConstructor
 public class ServiceService {
 

@@ -23,7 +23,7 @@ spring:
       max-request-size: ${MAX_REQUEST_SIZE:10MB}
 
 jwt:
-  secret: ${JWT_SECRET:change-me}
+  secret: ${JWT_SECRET:ThisIsAVerySecretKeyThatMustBeAtLeast32CharactersLongForHS256}
   expiration-minutes: ${JWT_EXP_MINUTES:60}
   issuer: ${JWT_ISSUER:jonoseba}
 
@@ -36,3 +36,25 @@ logging:
     root: INFO
     org.springframework.security: INFO
     org.hibernate.SQL: WARN
+
+# Actuator endpoints for health checks and monitoring
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+  health:
+    defaults:
+      enabled: true
+
+# API Documentation (Swagger/OpenAPI)
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true

@@ -7,6 +7,7 @@ import com.jonoseba.notifications.model.Notification;
 import com.jonoseba.notifications.publisher.NotificationPublisher;
 import com.jonoseba.notifications.repository.NotificationRepository;
 import com.jonoseba.users.model.User;
+import com.jonoseba.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;

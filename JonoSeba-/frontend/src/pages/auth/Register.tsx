@@ -36,9 +36,9 @@ const registerSchema = z.object({
   role: z.enum(['CITIZEN', 'FIELD_WORKER', 'ADMIN'], {
     errorMap: () => ({ message: 'ভূমিকা নির্বাচন করুন' }),
   }),
-  name: z.string().min(2, 'নাম কমপক্ষে ২ অক্ষরের হতে হবে'),
+  fullName: z.string().min(2, 'নাম কমপক্ষে ২ অক্ষরের হতে হবে'),
   email: z.string().email('সঠিক ইমেইল ঠিকানা লিখুন'),
-  phone: z.string().min(11, 'সঠিক ফোন নম্বর লিখুন'),
+  phone: z.string().min(10, 'সঠিক ফোন নম্বর লিখুন'),
   password: z.string().min(6, 'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে'),
   confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
@@ -57,7 +57,7 @@ export function Register() {
     resolver: zodResolver(registerSchema),
     defaultValues: {
       role: 'CITIZEN',
-      name: '',
+      fullName: '',
       email: '',
       phone: '',
       password: '',
@@ -69,7 +69,7 @@ export function Register() {
     setIsLoading(true)
     try {
       const response = await authApi.register({
-        name: data.name,
+        fullName: data.fullName,
         email: data.email,
         phone: data.phone,
         password: data.password,
@@ -138,7 +138,7 @@ export function Register() {
           {/* Name Field */}
           <FormField
             control={form.control}
-            name="name"
+            name="fullName"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>পূর্ণ নাম</FormLabel>

@@ -26,6 +26,9 @@ public class Complaint {
     private User citizen;
 
     @Column(nullable = false)
+    private String subject;
+
+    @Column(nullable = false)
     private String category;
 
     @Column(columnDefinition = "TEXT", nullable = false)
